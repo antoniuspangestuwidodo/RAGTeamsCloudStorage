@@ -27,7 +27,8 @@ public class RagService : IRagService
             throw new Exception("Hugging Face API key is missing in environment variables.");
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _huggingFaceApiKey);
-        _modelUrl = configuration["HuggingFace:ModelURL"];
+        // _modelUrl = configuration["HuggingFace:ModelURL"];
+        _modelUrl = Environment.GetEnvironmentVariable("HF_MODEL_URL");
     }
 
     public async Task<string> GetAnswerAsync(string documentContent, string userQuestion)

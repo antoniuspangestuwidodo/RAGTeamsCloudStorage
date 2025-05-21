@@ -1,9 +1,9 @@
+using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
-using Microsoft.Extensions.Configuration;
 
 namespace EchoBot.Bots
 {
@@ -18,14 +18,13 @@ namespace EchoBot.Bots
         public RagBot(IRagService ragService,
             IUserMemoryStore memoryStore,
             IHttpClientFactory httpClientFactory,
-            IDocumentFetcher documentFetcher,
-            IConfiguration configuration)
+            IDocumentFetcher documentFetcher)
         {
             _ragService = ragService;
             _memoryStore = memoryStore;
             _httpClient = httpClientFactory.CreateClient();
             _documentFetcher = documentFetcher;
-            _documentURL = configuration["HuggingFace:DatasetURL"];
+            _documentURL = Environment.GetEnvironmentVariable("HF_DATASET_URL");            
         }
 
         protected override async Task OnMessageActivityAsync(
