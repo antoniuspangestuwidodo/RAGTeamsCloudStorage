@@ -19,8 +19,13 @@ public class RagService : IRagService
 
     public RagService(HttpClient httpClient, IConfiguration configuration)
     {
-        _huggingFaceApiKey = configuration["HuggingFace:ApiKey"];
+        // _huggingFaceApiKey = configuration["HuggingFace:ApiKey"];
+        _huggingFaceApiKey = Environment.GetEnvironmentVariable("HF_API_KEY");
         _httpClient = httpClient;
+
+        if (string.IsNullOrEmpty(_huggingFaceApiKey))
+            throw new Exception("Hugging Face API key is missing in environment variables.");
+
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _huggingFaceApiKey);
         _modelUrl = configuration["HuggingFace:ModelURL"];
     }
