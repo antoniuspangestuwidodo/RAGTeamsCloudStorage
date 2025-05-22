@@ -57,13 +57,15 @@ builder.Services.AddHttpClient<IDocumentFetcher, DocumentFetcher>();
 
 
 var app = builder.Build();
-app.UseDefaultFiles();
-app.UseStaticFiles();
 app.UseRouting();
+
+app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers(); // important for activate /api/messages
-});
+// app.UseEndpoints(endpoints =>
+// {
+//     endpoints.MapControllers(); // important for activate /api/messages
+// });
