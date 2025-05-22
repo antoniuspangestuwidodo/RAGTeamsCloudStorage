@@ -8,8 +8,14 @@ using Microsoft.Bot.Builder.BotFramework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Logging;
+using System;
+using Microsoft.AspNetCore.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 
 builder.Services.AddSingleton<ICredentialProvider, ConfigurationCredentialProvider>();
 builder.Services.AddSingleton<AuthenticationConfiguration>();
