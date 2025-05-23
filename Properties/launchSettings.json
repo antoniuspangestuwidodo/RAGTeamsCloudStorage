@@ -21,11 +21,7 @@
       "launchBrowser": true,
       "applicationUrl": "http://localhost:3978",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "HF_API_KEY": "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",
-"HF_MODEL_URL": "https://api-inference.huggingface.co/models/deepset/roberta-base-squad2",
-"HF_DATASET_URL": "https://huggingface.co/datasets/shiembahrock/dsRAGTeams/resolve/main/Enigmatig.txt",
-"RAG_BASE_URL" : "https://ragteamscloudstorage-production.up.railway.app"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
