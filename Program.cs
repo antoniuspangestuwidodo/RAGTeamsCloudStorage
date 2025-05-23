@@ -21,7 +21,7 @@ builder.WebHost.UseUrls($"http://*:{port}");
 // Add logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-
+builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 builder.Services.AddSingleton<ICredentialProvider, ConfigurationCredentialProvider>();
 builder.Services.AddSingleton<AuthenticationConfiguration>();

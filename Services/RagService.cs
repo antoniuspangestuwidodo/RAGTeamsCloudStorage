@@ -21,6 +21,8 @@ public class RagService : IRagService
 
     public RagService(HttpClient httpClient, IConfiguration configuration, ILogger<RagService> logger)
     {
+        _logger = logger;
+
         // _huggingFaceApiKey = configuration["HuggingFace:ApiKey"];
         _huggingFaceApiKey = Environment.GetEnvironmentVariable("HF_API_KEY");
         if (string.IsNullOrEmpty(_huggingFaceApiKey))
@@ -29,7 +31,7 @@ public class RagService : IRagService
         _logger.LogInformation("🔍 HF_API_KEY = {ApiKey}", _huggingFaceApiKey ?? "<null>");
 
         _httpClient = httpClient;
-        _logger = logger;
+        
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _huggingFaceApiKey);
         // _modelUrl = configuration["HuggingFace:ModelURL"];
         _modelUrl = Environment.GetEnvironmentVariable("HF_MODEL_URL");
