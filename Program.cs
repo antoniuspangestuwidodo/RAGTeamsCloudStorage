@@ -16,6 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 // var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 // builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+Console.WriteLine("✅ Using PORT: " + port);
 builder.WebHost.UseUrls($"http://*:{port}");
 
 // Add logging
@@ -63,17 +64,29 @@ builder.Services.AddHttpClient<IDocumentFetcher, DocumentFetcher>();
 
 
 var app = builder.Build();
+
+// Logging ketika aplikasi akan berhenti
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    Console.WriteLine("🛑 Application is stopping...");
+});
+
+app.Lifetime.ApplicationStopped.Register(() =>
+{
+    Console.WriteLine("❌ Application has stopped.");
+});
+
 app.UseRouting();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-// app.Run();
+app.Run();
 
-Console.WriteLine(">>> Starting app.Run()");
-await app.RunAsync();
-Console.WriteLine(">>> app.Run() finished");
+// Console.WriteLine(">>> Starting app.Run()");
+// await app.RunAsync();
+// Console.WriteLine(">>> app.Run() finished");
 
 
 // app.UseEndpoints(endpoints =>
