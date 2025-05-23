@@ -69,7 +69,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+// app.Run();
+
+Console.WriteLine(">>> Starting app.Run()");
+await app.RunAsync();
+Console.WriteLine(">>> app.Run() finished");
+
 
 // app.UseEndpoints(endpoints =>
 // {
