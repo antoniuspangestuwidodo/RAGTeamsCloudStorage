@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 public interface IRagService
 {
@@ -16,26 +17,33 @@ public class RagService : IRagService
     private readonly HttpClient _httpClient;
     private readonly string _huggingFaceApiKey;
     private readonly string _modelUrl;
+    private readonly ILogger<RagService> _logger;
 
-    public RagService(HttpClient httpClient, IConfiguration configuration)
+    public RagService(HttpClient httpClient, IConfiguration configuration, ILogger<RagService> logger)
     {
         // _huggingFaceApiKey = configuration["HuggingFace:ApiKey"];
         _huggingFaceApiKey = Environment.GetEnvironmentVariable("HF_API_KEY");
         if (string.IsNullOrEmpty(_huggingFaceApiKey))
             throw new Exception("Hugging Face API key is missing in environment variables.");
+        
+        _logger.LogInformation("🔍 HF_API_KEY = {ApiKey}", _huggingFaceApiKey ?? "<null>");
 
         _httpClient = httpClient;
+        _logger = logger;
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _huggingFaceApiKey);
         // _modelUrl = configuration["HuggingFace:ModelURL"];
         _modelUrl = Environment.GetEnvironmentVariable("HF_MODEL_URL");
         if (string.IsNullOrEmpty(_modelUrl))
             throw new Exception("Model URL is missing in environment variables.");
 
+        _logger.LogInformation("🔍 HF_MODEL_URL = {ModelUrl}", _modelUrl ?? "<null>");
+
         var baseUrl = Environment.GetEnvironmentVariable("RAG_BASE_URL");
         if (string.IsNullOrEmpty(baseUrl))
-            throw new Exception("RAG_BASE_URL is missing in environment variables.");
-
+            throw new Exception("RAG_BASE_URL is missing in environment variables.");        
         _httpClient.BaseAddress = new Uri(baseUrl);
+
+        _logger.LogInformation("🔍 RAG_BASE_URL = {BaseUrl}", baseUrl ?? "<null>");
     }
 
     public async Task<string> GetAnswerAsync(string documentContent, string userQuestion)
