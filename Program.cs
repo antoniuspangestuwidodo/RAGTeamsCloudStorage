@@ -61,7 +61,7 @@ builder.Services.AddSingleton<IUserMemoryStore, UserMemoryStore>();
 builder.Services.AddSingleton<IDocumentStore, DocumentStore>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<IDocumentFetcher, DocumentFetcher>();
-
+builder.Services.AddHostedService<KeepAliveService>();
 
 var app = builder.Build();
 
@@ -82,11 +82,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+// app.Run();
 
-// Console.WriteLine(">>> Starting app.Run()");
-// await app.RunAsync();
-// Console.WriteLine(">>> app.Run() finished");
+Console.WriteLine("🚀 Running app...");
+app.Run();
+Console.WriteLine(">>> app.Run() finished");
+
 
 
 // app.UseEndpoints(endpoints =>

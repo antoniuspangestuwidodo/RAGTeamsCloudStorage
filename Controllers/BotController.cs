@@ -31,5 +31,12 @@ namespace EchoBot.Controllers
             // The adapter will invoke the bot.
             await _adapter.ProcessAsync(Request, Response, _bot);
         }
+
+        [HttpGet("ping")]
+        public IActionResult Ping()
+        {
+            return Ok("pong");
+        }
+
     }
 }
