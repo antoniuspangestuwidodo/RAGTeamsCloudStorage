@@ -21,14 +21,21 @@ public class RagService : IRagService
     {
         // _huggingFaceApiKey = configuration["HuggingFace:ApiKey"];
         _huggingFaceApiKey = Environment.GetEnvironmentVariable("HF_API_KEY");
-        _httpClient = httpClient;
-
         if (string.IsNullOrEmpty(_huggingFaceApiKey))
             throw new Exception("Hugging Face API key is missing in environment variables.");
 
+        _httpClient = httpClient;
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _huggingFaceApiKey);
         // _modelUrl = configuration["HuggingFace:ModelURL"];
         _modelUrl = Environment.GetEnvironmentVariable("HF_MODEL_URL");
+        if (string.IsNullOrEmpty(_modelUrl))
+            throw new Exception("Model URL is missing in environment variables.");
+
+        var baseUrl = Environment.GetEnvironmentVariable("RAG_BASE_URL");
+        if (string.IsNullOrEmpty(baseUrl))
+            throw new Exception("RAG_BASE_URL is missing in environment variables.");
+
+        _httpClient.BaseAddress = new Uri(baseUrl);
     }
 
     public async Task<string> GetAnswerAsync(string documentContent, string userQuestion)
