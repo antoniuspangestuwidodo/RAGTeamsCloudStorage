@@ -1,5 +1,6 @@
 ﻿// Generated with EchoBot .NET Template version v4.22.0
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
@@ -29,6 +30,7 @@ namespace EchoBot.Controllers
         {
             // Delegate the processing of the HTTP POST to the adapter.
             // The adapter will invoke the bot.
+            Console.WriteLine("📨 Received POST /api/messages");
             await _adapter.ProcessAsync(Request, Response, _bot);
         }
 
