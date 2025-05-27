@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -50,6 +51,22 @@ public class RagService : IRagService
 
     public async Task<string> GetAnswerAsync(string documentContent, string userQuestion)
     {
+        // Simple daily conversation
+        var greetings = new[] { "hi", "hello", "hey", "halo" };
+        var thanks = new[] { "thank you", "thanks", "thanks!", "thank" };
+        var bye = new[] { "bye", "goodbye", "bye bye" };
+
+        var lowerQuestion = userQuestion.ToLower().Trim();
+
+        if (greetings.Contains(lowerQuestion))
+            return "Hi welcome to Enigmatig! How can I help you today?";
+
+        if (thanks.Contains(lowerQuestion))
+            return "You're welcome! 😊";
+
+        if (bye.Contains(lowerQuestion))
+            return "Goodbye! Have a great day!";
+
         if (string.IsNullOrWhiteSpace(documentContent))
         {
             return "Sorry, the document is empty.";
