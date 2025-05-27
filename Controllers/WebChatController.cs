@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 [ApiController]
@@ -7,9 +8,14 @@ public class WebChatController : ControllerBase
 {
     private readonly IRagService _rag;
 
-    public WebChatController(IRagService rag)
+    private readonly IDocumentFetcher _documentFetcher;
+    private readonly string _documentURL;
+
+    public WebChatController(IRagService rag, IDocumentFetcher documentFetcher)
     {
         _rag = rag;
+        _documentFetcher = documentFetcher;
+        _documentURL = Environment.GetEnvironmentVariable("HF_DATASET_URL");            
     }
 
     [HttpPost]
@@ -18,7 +24,10 @@ public class WebChatController : ControllerBase
         if (string.IsNullOrWhiteSpace(req.Question))
             return BadRequest("Question is required.");
 
-        var answer = await _rag.GetAnswerAsync(req.Context ?? "", req.Question);
+        var docUrl = _documentURL;
+        var context = await _documentFetcher.LoadFromUrlAsync(docUrl);
+
+        var answer = await _rag.GetAnswerAsync(context, req.Question);
         return Ok(new { answer });
     }
 }
