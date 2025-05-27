@@ -51,7 +51,17 @@ builder.Services.AddSingleton<IBotFrameworkHttpAdapter>(sp =>
     return adapter;
 });
 
-
+//Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+          .AllowAnyOrigin()      // atau .WithOrigins("http://localhost") for specific origin
+          .AllowAnyMethod()      // allowing OPTIONS, POST, etc
+          .AllowAnyHeader();     // allowing header like Content-Type
+    });
+});
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddHttpClient<IRagService, RagService>();
