@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.BotFramework;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +33,18 @@ namespace EchoBot
             services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
 
             // Create the Bot Adapter with error handling enabled.
-            services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
+            // services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
+            var appId = Configuration["MicrosoftAppId"];
+            var appPassword = Configuration["MicrosoftAppPassword"];
+            var credentials = new MicrosoftAppCredentials(appId, appPassword);
+
+            services.AddSingleton<IBotFrameworkHttpAdapter, BotFrameworkHttpAdapter>(sp =>
+            {
+                var adapter = new BotFrameworkHttpAdapter(new ConfigurationCredentialProvider(Configuration));
+                // Optional: add logging or error handling
+                return adapter;
+            });
+
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, Bots.RagBot>();
