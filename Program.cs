@@ -75,6 +75,8 @@ builder.Services.AddHostedService<KeepAliveService>();
 
 var app = builder.Build();
 
+app.UseCors("AllowAll");
+
 // Logging ketika aplikasi akan berhenti
 app.Lifetime.ApplicationStopping.Register(() =>
 {
