@@ -20,27 +20,27 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
-# Salin semua file
+# Copy all files
 COPY . .
 
 # Restore dependencies
 RUN dotnet restore EchoBot.csproj
 
-# Publish aplikasi
+# Publish application
 RUN dotnet publish EchoBot.csproj -c Release -o /app/publish
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 WORKDIR /app
 
-# Expose port 80 agar Railway bisa forward
+# Expose port 80 for Railway forward
 EXPOSE 80
 
-# Biarkan ASP.NET listen ke semua interface di port 80
+# Allowing ASP.NET listen to all  interface in port 80
 ENV ASPNETCORE_URLS=http://+:80
 
-# Salin hasil publish dari stage build
+# Copy publish result from stage build
 COPY --from=build /app/publish .
 
-# Jalankan aplikasi
+# Run the application
 ENTRYPOINT ["dotnet", "EchoBot.dll"]

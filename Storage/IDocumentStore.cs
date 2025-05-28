@@ -18,6 +18,7 @@ public class DocumentStore : IDocumentStore
             (key, existingList) =>
             {
                 existingList.Add(content);
+
                 return existingList;
             });
     }
@@ -26,6 +27,7 @@ public class DocumentStore : IDocumentStore
     {
         if (_userDocuments.TryGetValue(userId, out var docs))
             return docs;
+            
         return new List<string>();
     }
 }

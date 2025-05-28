@@ -7,15 +7,12 @@ public class AdapterWithErrorHandler : BotFrameworkHttpAdapter
         : base()
     {
         OnTurnError = async (context, exception) =>
-        {
-            // logger.LogError(exception, $"[OnTurnError] unhandled error : {exception.Message}");
-            // await context.SendActivityAsync("There is an error, please try again.");
-
+        {            
             // Logging error ke console/log cloud
             logger.LogError(exception, "Bot Error: {Message}", exception.Message);
 
-            // Kirim pesan error ke user
-            await context.SendActivityAsync("Maaf, terjadi kesalahan pada bot.");
+            // Send error message to User
+            await context.SendActivityAsync("Sorry, an error occured in bot.");
             await context.SendActivityAsync($"Error Detail: {exception.Message}");
         };
     }

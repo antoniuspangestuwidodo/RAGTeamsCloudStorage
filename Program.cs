@@ -13,8 +13,6 @@ using Microsoft.AspNetCore.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-// builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
 Console.WriteLine("✅ Using PORT: " + port);
 builder.WebHost.UseUrls($"http://*:{port}");
@@ -27,21 +25,20 @@ builder.Logging.SetMinimumLevel(LogLevel.Information);
 builder.Services.AddSingleton<ICredentialProvider, ConfigurationCredentialProvider>();
 builder.Services.AddSingleton<AuthenticationConfiguration>();
 
-// 1. Registrasi BotFrameworkAuthentication (dari appsettings or env)
+// Registration for BotFrameworkAuthentication (from appsettings or env)
 builder.Services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
 
-
-// 2) Register the adapter via factory so we can call the correct overload
+// Register the adapter via factory so we can call the correct overload
 builder.Services.AddSingleton<IBotFrameworkHttpAdapter>(sp =>
 {
     var credProv   = sp.GetRequiredService<ICredentialProvider>();
     var authConfig = sp.GetRequiredService<AuthenticationConfiguration>();
     var logger     = sp.GetRequiredService<ILogger<BotFrameworkHttpAdapter>>();
 
-    // Panggil overload yang tersedia: credentialProvider + authConfig
+    // Call available overload : credentialProvider + authConfig
     var adapter = new BotFrameworkHttpAdapter(credProv, authConfig);
 
-    // Pasang OnTurnError pakai logger
+    // Apply OnTurnError with logger
     adapter.OnTurnError = async (turnContext, exception) =>
     {
         logger.LogError(exception, "❌ Bot error:");
@@ -57,7 +54,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
     {
         policy
-          .AllowAnyOrigin()      // atau .WithOrigins("http://localhost") for specific origin
+          .AllowAnyOrigin()      // or .WithOrigins("http://localhost") for specific origin
           .AllowAnyMethod()      // allowing OPTIONS, POST, etc
           .AllowAnyHeader();     // allowing header like Content-Type
     });
@@ -65,7 +62,6 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddHttpClient<IRagService, RagService>();
-// builder.Services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 builder.Services.AddSingleton<IBot, RagBot>();
 builder.Services.AddSingleton<IUserMemoryStore, UserMemoryStore>();
 builder.Services.AddSingleton<IDocumentStore, DocumentStore>();
@@ -77,7 +73,7 @@ var app = builder.Build();
 
 app.UseCors("AllowAll");
 
-// Logging ketika aplikasi akan berhenti
+// Logging when the application stopped
 app.Lifetime.ApplicationStopping.Register(() =>
 {
     Console.WriteLine("🛑 Application is stopping...");
@@ -89,20 +85,9 @@ app.Lifetime.ApplicationStopped.Register(() =>
 });
 
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
-// app.Run();
 
 Console.WriteLine("🚀 Running app...");
 app.Run();
 Console.WriteLine(">>> app.Run() finished");
-
-
-
-// app.UseEndpoints(endpoints =>
-// {
-//     endpoints.MapControllers(); // important for activate /api/messages
-// });
