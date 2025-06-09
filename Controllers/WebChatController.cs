@@ -39,33 +39,31 @@ public class WebChatController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] WebChatRequest req)
     {
-        // if (string.IsNullOrWhiteSpace(req.Question))
-        //     return BadRequest("Question is required.");
-
-        // 1. Save userName if provided
-        if (!string.IsNullOrWhiteSpace(req.UserId) && !string.IsNullOrWhiteSpace(req.UserName))
-        {
-            await _memoryStore.SaveUserNameAsync(req.UserId, req.UserName);
-        }
-
-        // 2. Get user name if available
-        var name = string.Empty;
-        if (!string.IsNullOrWhiteSpace(req.UserId))
-        {
-            name = await _memoryStore.GetUserNameAsync(req.UserId);
-        }
-
         var docUrl = _documentURL;
         var context = await _documentFetcher.LoadFromUrlAsync(docUrl);
 
+        // Cek jika input mengandung "my name is"
+        if (!string.IsNullOrWhiteSpace(req.Question) &&
+            req.Question.ToLower().StartsWith("my name is"))
+        {
+            var name = req.Question.Substring(11).Trim();
+            if (!string.IsNullOrEmpty(req.UserId) && !string.IsNullOrEmpty(name))
+            {
+                await _memoryStore.SaveUserNameAsync(req.UserId, name);
+                return Ok(new { answer = $"Nice to meet you, {name}!" });
+            }
+        }
+
+        // Ambil nama user kalau ada
+        var userName = await _memoryStore.GetUserNameAsync(req.UserId);
         var answer = await _rag.GetAnswerAsync(context, req.Question);
 
-        // 🎯 Try to get username from memory
-        var finalAnswer = !string.IsNullOrEmpty(name)
-            ? $"{name}, {answer}"
-            : answer;
+        // Personalize jika ada nama
+        if (!string.IsNullOrWhiteSpace(userName))
+        {
+            answer = $"Hi {userName}, here's the answer:\n{answer}";
+        }
 
-        //return Ok(new { answer });
-        return Ok(new WebChatResponse { Answer = finalAnswer });
+        return Ok(new { answer });
     }
 }
