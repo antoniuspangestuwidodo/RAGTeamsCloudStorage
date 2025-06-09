@@ -28,6 +28,11 @@ builder.Services.AddSingleton<AuthenticationConfiguration>();
 // Registration for BotFrameworkAuthentication (from appsettings or env)
 builder.Services.AddSingleton<BotFrameworkAuthentication, ConfigurationBotFrameworkAuthentication>();
 
+// Register for User State
+builder.Services.AddSingleton<IStorage, MemoryStorage>();
+builder.Services.AddSingleton<UserState>();
+builder.Services.AddSingleton<IUserMemoryStore, UserMemoryStore>();
+
 // Register the adapter via factory so we can call the correct overload
 builder.Services.AddSingleton<IBotFrameworkHttpAdapter>(sp =>
 {
