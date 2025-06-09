@@ -42,7 +42,7 @@ public class WebChatController : ControllerBase
         var docUrl = _documentURL;
         var context = await _documentFetcher.LoadFromUrlAsync(docUrl);
 
-        // Cek jika input mengandung "my name is"
+        // Check if the input contain "my name is"
         if (!string.IsNullOrWhiteSpace(req.Question) &&
             req.Question.ToLower().StartsWith("my name is"))
         {
@@ -54,11 +54,11 @@ public class WebChatController : ControllerBase
             }
         }
 
-        // Ambil nama user kalau ada
+        // Get username if available
         var userName = await _memoryStore.GetUserNameAsync(req.UserId);
         var answer = await _rag.GetAnswerAsync(context, req.Question);
 
-        // Personalize jika ada nama
+        // Personalize if name available
         if (!string.IsNullOrWhiteSpace(userName))
         {
             answer = $"Hi {userName}, here's the answer:\n{answer}";
