@@ -37,42 +37,55 @@ namespace EchoBot.Bots
             ITurnContext<IMessageActivity> turnContext,
             CancellationToken cancellationToken)
         {
+            var userId = turnContext.Activity.From.Id;
             var userProfile = await _userProfileAccessor.GetAsync(turnContext, () => new UserProfile(), cancellationToken);
             var userInput = turnContext.Activity.Text?.Trim();
 
             if (string.IsNullOrWhiteSpace(userInput))
             {
-                await turnContext.SendActivityAsync("Please ask your question.", cancellationToken: cancellationToken);
+                await turnContext.SendActivityAsync("Please enter a message.", cancellationToken: cancellationToken);
 
                 return;
             }
 
-            if (userInput?.ToLower().StartsWith("my name is") == true)
+            // If user says "my name is ..."
+            if (userInput.ToLower().StartsWith("my name is"))
             {
-                userProfile.Name = userInput.Substring(11); // ambil nama
-                await turnContext.SendActivityAsync($"Nice to meet you, {userProfile.Name}!", cancellationToken: cancellationToken);
+                var name = userInput.Substring(11).Trim();
+                userProfile.Name = name;
+
+                // Optionally save to external memory store as well
+                await _memoryStore.SaveUserNameAsync(userId, name);
+
+                await turnContext.SendActivityAsync($"Nice to meet you, {name}!", cancellationToken: cancellationToken);
+                await _userProfileAccessor.SetAsync(turnContext, userProfile, cancellationToken);
+                await _userState.SaveChangesAsync(turnContext, false, cancellationToken);
+                return;
             }
-            else if (!string.IsNullOrEmpty(userProfile.Name))
+
+            // Retrieve name if exists (either from Bot State or external store)
+            if (string.IsNullOrEmpty(userProfile.Name))
             {
-                await turnContext.SendActivityAsync($"Hi again, {userProfile.Name}! You asked: '{userInput}'", cancellationToken: cancellationToken);
-                // RAG Process
-                // 1. Get document from cloud (Hugging Face Dataset)            
-                var docUrl = _documentURL;
-                var context = await _documentFetcher.LoadFromUrlAsync(docUrl);
-
-                // 2. Send to RAG Service
-                var answer = await _ragService.GetAnswerAsync(context, userInput);
-
-                // 3. Send answer to user
-                await turnContext.SendActivityAsync(MessageFactory.Text(answer), cancellationToken);
+                var nameFromStore = await _memoryStore.GetUserNameAsync(userId);
+                if (!string.IsNullOrEmpty(nameFromStore))
+                {
+                    userProfile.Name = nameFromStore;
+                }
             }
-            else
-            {
-                await turnContext.SendActivityAsync("Hi! What's your name?", cancellationToken: cancellationToken);
-            }            
+            
+            // Load document context
+            var context = await _documentFetcher.LoadFromUrlAsync(_documentURL);
 
-            // Save state
-            await _userState.SaveChangesAsync(turnContext, cancellationToken: cancellationToken);
+            // Ask the RAG service
+            var answer = await _ragService.GetAnswerAsync(context, userInput);
+
+            // Customize response if name exists
+            if (!string.IsNullOrEmpty(userProfile.Name))
+            {
+                answer = $"Hi {userProfile.Name}, here's the answer:\n{answer}";
+            }
+
+            await turnContext.SendActivityAsync(MessageFactory.Text(answer), cancellationToken);
         }
     }
 }
