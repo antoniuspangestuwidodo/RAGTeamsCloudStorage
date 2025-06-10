@@ -10,12 +10,13 @@ using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Logging;
 using System;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
 Console.WriteLine("✅ Using PORT: " + port);
-builder.WebHost.UseUrls($"http://*:{port}");
+// builder.WebHost.UseUrls($"http://*:{port}");
 
 // Add logging
 builder.Logging.ClearProviders();
@@ -75,6 +76,12 @@ builder.Services.AddHttpClient<IDocumentFetcher, DocumentFetcher>();
 builder.Services.AddHostedService<KeepAliveService>();
 
 var app = builder.Build();
+
+// Only use UseUrls if running in production (e.g., Railway)
+if (!app.Environment.IsDevelopment())
+{
+    builder.WebHost.UseUrls($"http://*:{port}");
+}
 
 app.UseCors("AllowAll");
 
